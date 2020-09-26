@@ -148,7 +148,7 @@ button:hover::before{
 .controller .arrow{
     height: 40px;
     width: 50px;
-    background: url(arrow.svg) no-repeat;
+    background: url(Assets/arrow.svg) no-repeat;
     background-position: center;
     background-size: contain
 }

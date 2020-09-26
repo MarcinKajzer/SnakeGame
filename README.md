@@ -1,1 +1,3 @@
 # SnakeGame
+
+![](Assets/game.gif)
