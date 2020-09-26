@@ -158,7 +158,7 @@ function renderBoard(){
         board.appendChild(cell);
     }
 
-    document.body.appendChild(board);
+    document.querySelector(".board-placeholder").appendChild(board);
 }
 
 function renderSnake(){
@@ -281,7 +281,7 @@ function tryAgain(){
     document.body.removeChild(popupContainer);
 
     let gameBoard = document.querySelector(".game-board");
-    document.body.removeChild(gameBoard);
+    document.querySelector(".board-placeholder").removeChild(gameBoard);
 
     renderMenu();
 

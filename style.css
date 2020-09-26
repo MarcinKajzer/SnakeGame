@@ -134,10 +134,11 @@ button:hover::before{
 }
 
 .controller{
-    position: absolute;
     bottom: 0;
     padding: 10px 0;
     width: 100vw;
+    max-width: 500px;
+    margin: 0 auto;
     display: none;
     justify-content: center;
     flex-wrap: wrap;
@@ -177,5 +178,11 @@ button:hover::before{
     }
     .menu{
         margin: 40px auto;
+    }
+}
+
+@media screen and (min-height: 645px){
+    .controller{
+        padding-top: 30px;
     }
 }
