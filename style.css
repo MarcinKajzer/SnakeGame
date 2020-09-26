@@ -134,7 +134,7 @@ button:hover::before{
 }
 
 .controller{
-    position: fixed;
+    position: absolute;
     bottom: 0;
     padding: 10px 0;
     width: 100vw;

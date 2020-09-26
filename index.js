@@ -1,3 +1,5 @@
+document.documentElement.requestFullscreen();
+
 var boardDimension;
 var focusedDimensionButtonIndex;
 var currentDirection = "right";
@@ -42,6 +44,7 @@ function hideMenu(){
 function showController(){
     if ("ontouchstart" in document.documentElement) {
         document.querySelector(".controller").style.display = "flex";
+        document.documentElement.requestFullscreen();
     }
 }
 
