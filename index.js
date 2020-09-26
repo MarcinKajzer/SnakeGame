@@ -1,16 +1,16 @@
-document.documentElement.requestFullscreen();
-
 var boardDimension;
-var focusedDimensionButtonIndex;
-var currentDirection = "right";
-var speed;
-
 var numberOfCells;
 
-var snake = [2,1,0];
+var focusedDimensionButtonIndex;
+
+var currentDirection = "right";
+var speed = 300;
+var score = 0;
+
 var itemCoord;
 
-var score = 0;
+var snake = [2,1,0];
+var isGameRuning;
 
 renderMenu();
 
@@ -40,7 +40,6 @@ function hideMenu(){
     document.body.removeChild(menu);
 }
 
-
 function showController(){
     if ("ontouchstart" in document.documentElement) {
         document.querySelector(".controller").style.display = "flex";
@@ -59,6 +58,9 @@ function showScore(){
 function hideScore(){
     document.querySelector(".score").style.display = "none";
 }
+
+
+
 
 function setBoardDimension(value, index){
     boardDimension = value;
@@ -125,6 +127,8 @@ function setDirection(button){
     }
 }
 
+
+
 function startGame(){
     if(typeof boardDimension == "undefined"){
         appendAlert();
@@ -137,8 +141,9 @@ function startGame(){
         renderBoard();
         renderSnake();
         renderItem();
-
-        interval = setInterval(moveSnake, 300);
+        
+        isGameRuning = true;
+        setInterval();
     }
 }
 
@@ -159,9 +164,9 @@ function renderBoard(){
 function renderSnake(){
     let cells = document.getElementsByClassName("cell")
 
-    cells[0].classList.add("snake-cell");
-    cells[1].classList.add("snake-cell");
-    cells[2].classList.add("snake-cell");
+    for(let i = 0; i <3; i ++){
+        cells[i].classList.add("snake-cell");
+    }
 }
 
 function renderItem(){
@@ -182,12 +187,11 @@ function renderItem(){
     }
 }
 
-function fillSingleSnakeCell(number){
-    document.getElementsByClassName("cell")[number].classList.add("snake-cell");
-}
-
-function unfillSingleSnakeCell(number){
-    document.getElementsByClassName("cell")[number].classList.remove("snake-cell");
+function setInterval(){
+    moveSnake();
+    if(isGameRuning){
+        setTimeout(setInterval, speed); 
+    }
 }
 
 function moveSnake(){
@@ -198,6 +202,7 @@ function moveSnake(){
     if(itemCoord == snake[0]){
         extendSnake();
         score++;
+        increaseSpeed();
         renderItem();
         document.querySelector(".score").innerHTML = "Score: " + score;
     }
@@ -229,15 +234,13 @@ function moveSnakeIfItDoesntCrashAgainstTheWall(){
     }
 }
 
-
 function appendSingleCellToSnakeHead(coord){
     fillSingleSnakeCell(coord);
     snake.unshift(coord);
 }
 
-function removeSingleCellFromSnakeTail(){
-    unfillSingleSnakeCell(snake[snake.length - 1])
-    snake.pop();
+function fillSingleSnakeCell(number){
+    document.getElementsByClassName("cell")[number].classList.add("snake-cell");
 }
 
 function gameOver(){
@@ -267,7 +270,35 @@ function gameOver(){
     popupContainer.appendChild(popup)
 
     document.body.appendChild(popupContainer);
-    clearInterval(interval);
+    isGameRuning = false;
+}
+
+function tryAgain(){
+
+    resetProps();
+    
+    let popupContainer = document.querySelector(".popup-container");
+    document.body.removeChild(popupContainer);
+
+    let gameBoard = document.querySelector(".game-board");
+    document.body.removeChild(gameBoard);
+
+    renderMenu();
+
+    let focusedButton = document.getElementsByClassName("dimension-button")[focusedDimensionButtonIndex];
+    fucuseDimensionButton(focusedButton);
+
+    hideController();
+    hideScore();
+    document.querySelector(".score").innerHTML = "Score: " + 0;
+}
+
+function resetProps(){
+    score = 0;
+    currentDirection = "right";
+    snake = [2,1,0];
+    itemCoord = null;
+    speed = 300;
 }
 
 function extendSnake(){
@@ -294,26 +325,37 @@ function extendSnake(){
     }
 }
 
-function tryAgain(){
-
-    score = 0;
-    currentDirection = "right";
-    snake = [2,1,0];
-    itemCoord = null;
-
-    let popupContainer = document.querySelector(".popup-container");
-    document.body.removeChild(popupContainer);
-
-    let gameBoard = document.querySelector(".game-board");
-    document.body.removeChild(gameBoard);
-
-    renderMenu();
-
-
-    let focusedButton = document.getElementsByClassName("dimension-button")[focusedDimensionButtonIndex];
-    fucuseDimensionButton(focusedButton);
-
-    hideController();
-    hideScore();
-    document.querySelector(".score").innerHTML = "Score: " + 0;
+function increaseSpeed(){
+    if(speed <= 15){
+        return;
+    }
+    else if(speed > 150){
+        speed -= 10;
+    }
+    else if(speed > 100){
+        speed -= 5;
+    }
+    else if(speed > 50){
+        speed -= 3
+    }
 }
+
+function removeSingleCellFromSnakeTail(){
+    unfillSingleSnakeCell(snake[snake.length - 1])
+    snake.pop();
+}
+
+function unfillSingleSnakeCell(number){
+    document.getElementsByClassName("cell")[number].classList.remove("snake-cell");
+}
+
+
+
+
+
+
+
+
+
+
+
