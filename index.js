@@ -3,8 +3,8 @@ var numberOfCells;
 
 var focusedDimensionButtonIndex;
 
-var currentDirection = "right";
-var speed = 300;
+var currentDirection = 1;
+var interval = 300;
 var score = 0;
 
 var itemCoord;
@@ -32,7 +32,7 @@ function renderMenu(){
     startGameButton.onclick = () => startGame();
     menu.appendChild(startGameButton);
 
-    document.body.append(menu);
+    document.body.appendChild(menu);
 }
 
 function hideMenu(){
@@ -43,7 +43,6 @@ function hideMenu(){
 function showController(){
     if ("ontouchstart" in document.documentElement) {
         document.querySelector(".controller").style.display = "flex";
-        document.documentElement.requestFullscreen();
     }
 }
 
@@ -58,8 +57,6 @@ function showScore(){
 function hideScore(){
     document.querySelector(".score").style.display = "none";
 }
-
-
 
 
 function setBoardDimension(value, index){
@@ -99,29 +96,29 @@ function removeAlert(){
 }
 
 document.addEventListener("keydown", function(event){
-    setDirection(event.key)
+    setDirection(event.key);
 })
 
 function setDirection(button){
     switch(button){
         case "ArrowRight":
-            if(currentDirection != "left"){
-                currentDirection = "right";
+            if(currentDirection != -1){
+                currentDirection = 1;
             }
             break;
         case "ArrowLeft":
-            if(currentDirection != "right"){
-                currentDirection = "left";
+            if(currentDirection != 1){
+                currentDirection = -1;
             }
             break;
         case "ArrowUp":
-            if(currentDirection != "down"){
-                currentDirection = "up";
+            if(currentDirection != boardDimension){
+                currentDirection = -boardDimension;
             }
             break;
         case "ArrowDown":
-            if(currentDirection != "up"){
-                currentDirection = "down";
+            if(currentDirection != -boardDimension){
+                currentDirection = boardDimension;
             }
             break;
     }
@@ -163,10 +160,7 @@ function renderBoard(){
 
 function renderSnake(){
     let cells = document.getElementsByClassName("cell")
-
-    for(let i = 0; i <3; i ++){
-        cells[i].classList.add("snake-cell");
-    }
+    snake.forEach(i => cells[i].classList.add("snake-cell"))
 }
 
 function renderItem(){
@@ -178,7 +172,7 @@ function renderItem(){
     }
 
     while(true){
-        itemCoord = Math.floor(Math.random() * numberOfCells + 1);
+        itemCoord = Math.floor(Math.random() * numberOfCells);
 
         if(typeof snake.find(x => x == itemCoord) == "undefined"){
             cells[itemCoord].classList.add("item-cell");
@@ -190,48 +184,38 @@ function renderItem(){
 function setInterval(){
     moveSnake();
     if(isGameRuning){
-        setTimeout(setInterval, speed); 
+        setTimeout(setInterval, interval); 
     }
 }
 
 function moveSnake(){
 
-    stopGameIfSnakeCrashedAgainstItself();
-    moveSnakeIfItDoesntCrashAgainstTheWall();
-
+    if(snakeCrashedAgainstItself() || snakeCrashAgainstTheWall()){
+        gameOver();
+        return;
+    }
+    appendSingleCellToSnakeHead(snake[0]+currentDirection)
+    
+    const tail = removeSingleCellFromSnakeTail();
+    
     if(itemCoord == snake[0]){
-        extendSnake();
+        extendSnake(tail);
         score++;
         increaseSpeed();
         renderItem();
         document.querySelector(".score").innerHTML = "Score: " + score;
     }
-
-    removeSingleCellFromSnakeTail();
 }
 
-function stopGameIfSnakeCrashedAgainstItself(){
-    if(typeof snake.slice(1,snake.length).find(x => x == snake[0]) != "undefined"){
-        gameOver();
-    }
+function snakeCrashedAgainstItself(){
+    return typeof snake.slice(1,snake.length).find(x => x == snake[0]) != "undefined";
 }
 
-function moveSnakeIfItDoesntCrashAgainstTheWall(){
-    if(currentDirection == "right" && (snake[0]+1) % boardDimension != 0){
-        appendSingleCellToSnakeHead(snake[0]+1)
-    }
-    else if(currentDirection == "left" && snake[0] % boardDimension != 0){
-        appendSingleCellToSnakeHead(snake[0]-1)
-    }
-    else if(currentDirection == "up" && snake[0] - boardDimension >= 0){
-        appendSingleCellToSnakeHead(snake[0]-boardDimension)
-    }
-    else if(currentDirection == "down" && snake[0] + boardDimension <= numberOfCells){
-        appendSingleCellToSnakeHead(snake[0]+boardDimension)
-    }
-    else{
-        gameOver();
-    }
+function snakeCrashAgainstTheWall(){
+    return (currentDirection == 1 && (snake[0]+1) % boardDimension == 0) ||
+        (currentDirection == -1 && snake[0] % boardDimension == 0) ||
+        (currentDirection == -boardDimension && snake[0] - boardDimension < 0) ||
+        (currentDirection == boardDimension && snake[0] + boardDimension > numberOfCells - 1);
 }
 
 function appendSingleCellToSnakeHead(coord){
@@ -295,54 +279,36 @@ function tryAgain(){
 
 function resetProps(){
     score = 0;
-    currentDirection = "right";
+    currentDirection = 1;
     snake = [2,1,0];
     itemCoord = null;
-    speed = 300;
+    interval = 300;
 }
 
-function extendSnake(){
+function extendSnake(tail){
 
-    let tail = snake[snake.length-1] - snake[snake.length-2] 
-
-    switch(tail){
-        case 1:
-            fillSingleSnakeCell(snake[snake.length-1]+1);
-            snake.push(snake[snake.length-1]+1);
-            break;
-        case -1:
-            fillSingleSnakeCell(snake[snake.length-1]-1);
-            snake.push(snake[snake.length-1]-1);
-            break;
-        case boardDimension:
-            fillSingleSnakeCell(snake[snake.length-1]-boardDimension);
-            snake.push(snake[snake.length-1]-boardDimension);
-            break;
-        case -boardDimension:
-            fillSingleSnakeCell(snake[snake.length-1]+boardDimension);
-            snake.push(snake[snake.length-1]+boardDimension);
-            break;
-    }
+    fillSingleSnakeCell(tail);
+    snake.push(tail);
 }
 
 function increaseSpeed(){
-    if(speed <= 15){
+    if(interval <= 15){
         return;
     }
-    else if(speed > 150){
-        speed -= 10;
+    else if(interval > 150){
+        interval -= 10;
     }
-    else if(speed > 100){
-        speed -= 5;
+    else if(interval > 100){
+        interval -= 5;
     }
-    else if(speed > 50){
-        speed -= 3
+    else if(interval > 50){
+        interval -= 3
     }
 }
 
 function removeSingleCellFromSnakeTail(){
     unfillSingleSnakeCell(snake[snake.length - 1])
-    snake.pop();
+    return snake.pop();
 }
 
 function unfillSingleSnakeCell(number){
