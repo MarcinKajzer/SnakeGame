@@ -14,6 +14,7 @@
 
 body{
     background: var(--dark-gray);
+    overscroll-behavior: contain;
 }
 
 h1{

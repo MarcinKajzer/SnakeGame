@@ -14,6 +14,26 @@ var isGameRuning;
 
 renderMenu();
 
+if ("ontouchstart" in document.documentElement) {
+        
+document.addEventListener('swiped-left', function(e) {
+  setDirection("ArrowLeft")
+});
+
+document.addEventListener('swiped-right', function(e) {
+  setDirection("ArrowRight")
+});
+
+document.addEventListener('swiped-up', function(e) {
+  setDirection("ArrowUp")
+});
+
+document.addEventListener('swiped-down', function(e) {
+  setDirection("ArrowDown")
+});
+    }
+
+
 function renderMenu(){
     let menu = document.createElement("section");
     menu.classList.add("menu");
@@ -38,16 +58,6 @@ function renderMenu(){
 function hideMenu(){
     let menu = document.querySelector(".menu");
     document.body.removeChild(menu);
-}
-
-function showController(){
-    if ("ontouchstart" in document.documentElement) {
-        document.querySelector(".controller").style.display = "flex";
-    }
-}
-
-function hideController(){
-    document.querySelector(".controller").style.display = "none";
 }
 
 function showScore(){
@@ -132,7 +142,6 @@ function startGame(){
     }
     else{
         hideMenu();
-        showController();
         showScore();
 
         renderBoard();
@@ -272,7 +281,6 @@ function tryAgain(){
     let focusedButton = document.getElementsByClassName("dimension-button")[focusedDimensionButtonIndex];
     fucuseDimensionButton(focusedButton);
 
-    hideController();
     hideScore();
     document.querySelector(".score").innerHTML = "Score: " + 0;
 }
